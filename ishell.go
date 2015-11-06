@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/chzyer/readline"
 	"github.com/flynn/go-shlex"
 	"github.com/howeyc/gopass"
 )
@@ -32,10 +33,11 @@ type Shell struct {
 	activeMutex sync.RWMutex
 	ignoreCase  bool
 	haltChan    chan struct{}
+	rl          *readline.Instance
 }
 
 // NewShell creates a new shell with default settings. Uses standard output and default prompt ">>".
-func NewShell() *Shell {
+func NewShell(completer *readline.PrefixCompleter) *Shell {
 	shell := &Shell{
 		prompt:     defaultPrompt,
 		showPrompt: true,
@@ -46,6 +48,11 @@ func NewShell() *Shell {
 		writer:   os.Stdout,
 		haltChan: make(chan struct{}),
 	}
+	rl, err := readline.NewEx(&readline.Config{Prompt: shell.prompt, AutoComplete: completer})
+	if err != nil {
+		panic(err)
+	}
+	shell.rl = rl
 	addDefaultFuncs(shell)
 	return shell
 }
@@ -193,6 +200,7 @@ func (s *Shell) readLine() (line string, err error) {
 	if s.showPrompt {
 		s.Print(s.prompt)
 	}
+	return s.rl.Readline()
 	consumer := make(chan lineString)
 	s.reader.ReadLine(consumer)
 	ls := <-consumer
@@ -270,6 +278,7 @@ func (s *Shell) RegisterGeneric(function CmdFunc) {
 // SetPrompt sets the prompt string. The string to be displayed before the cursor.
 func (s *Shell) SetPrompt(prompt string) {
 	s.prompt = prompt
+	s.rl.SetPrompt(prompt)
 }
 
 // ShowPrompt sets whether prompt should show when requesting input for ReadLine and ReadPassword.
