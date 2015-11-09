@@ -201,10 +201,6 @@ func (s *Shell) readLine() (line string, err error) {
 		s.Print(s.prompt)
 	}
 	return s.rl.Readline()
-	consumer := make(chan lineString)
-	s.reader.ReadLine(consumer)
-	ls := <-consumer
-	return ls.line, ls.err
 }
 
 // ReadMultiLinesFunc reads multiple lines from standard input. It passes each read line to
@@ -279,6 +275,10 @@ func (s *Shell) RegisterGeneric(function CmdFunc) {
 func (s *Shell) SetPrompt(prompt string) {
 	s.prompt = prompt
 	s.rl.SetPrompt(prompt)
+}
+
+func (s *Shell) GetPrompt() string {
+	return s.prompt
 }
 
 // ShowPrompt sets whether prompt should show when requesting input for ReadLine and ReadPassword.
