@@ -191,9 +191,10 @@ func (s *Shell) Stop() {
 }
 
 // ReadLine reads a line from standard input.
-func (s *Shell) ReadLine() string {
-	line, _ := s.readLine()
-	return line
+func (s *Shell) ReadLine() (string, error) {
+	return s.readLine()
+	// line, _ := s.readLine()
+	// return line
 }
 
 func (s *Shell) readLine() (line string, err error) {
@@ -208,7 +209,7 @@ func (s *Shell) readLine() (line string, err error) {
 func (s *Shell) ReadMultiLinesFunc(f func(string) bool) string {
 	lines := bytes.NewBufferString("")
 	for {
-		line := s.ReadLine()
+		line, _ := s.ReadLine()
 		fmt.Fprint(lines, line)
 		if !f(line) {
 			break
