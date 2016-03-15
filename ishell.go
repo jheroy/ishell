@@ -239,9 +239,11 @@ func (s *Shell) ReadPassword(mask bool) string {
 		s.Print(s.prompt)
 	}
 	if mask {
-		return string(gopass.GetPasswdMasked())
+		pass, _ := gopass.GetPasswdMasked()
+		return string(pass)
 	}
-	return string(gopass.GetPasswd())
+	pass, _ := gopass.GetPasswd()
+	return string(pass)
 }
 
 // Println prints to output and ends with newline character.
